@@ -137,11 +137,6 @@ public class PairsToStdhepLCIO {
 		double[] values = new double[7];
 
 		// Constants and variables
-		double mass = 0.000510998928;
-		int pdg = 11;
-		double energy = -999;
-		double[] mom = new double[3];
-		double[] beta = new double[3];
 		double[] pos = new double[3];
 
 		int _n = 0;
@@ -217,37 +212,20 @@ public class PairsToStdhepLCIO {
 					values[j++] = Double.valueOf(st.nextToken()).doubleValue();
 				}
 
-				energy = values[0];
-				beta[0] = values[1];
-				beta[1] = values[2];
-				beta[2] = values[3];
-
-				if (energy < 0) {
-					pdg *= -1;
-					energy *= -1.D;
-				}
-				mom[0] = beta[0] * energy;
-				mom[1] = beta[1] * energy;
-				mom[2] = beta[2] * energy;
-
-				double pT = 0.0D;
-				double theta = 0.0D;
-				pT = Math.sqrt(mom[0] * mom[0] + mom[1] * mom[1]);
-				theta = Math.atan(pT / Math.abs(mom[2]));
-				if (theta < 0)	theta += Math.PI;
-
-				if ((theta < Theta_cut_low || theta > Theta_cut_high) 
-				       || (pT < pT_cut_low || pT > pT_cut_high)){
+				Particle p = new Particle(values);
+				
+				if ((p.getTheta() < Theta_cut_low || p.getTheta() > Theta_cut_high) 
+				       || (p.getPT() < pT_cut_low || p.getPT() > pT_cut_high)){
 					continue;
 				}
 
 				_fst[_n] = 1; // final state particle
-				_id[_n] = (int) pdg;
-				_p[0 + 5 * _n] = mom[0]; // px
-				_p[1 + 5 * _n] = mom[1]; // py
-				_p[2 + 5 * _n] = mom[2]; // pz
-				_p[3 + 5 * _n] = energy; // E
-				_p[4 + 5 * _n] = mass; // mass
+				_id[_n] = (int) p.getPDG();
+				_p[0 + 5 * _n] = p.getMomentum()[0]; // px
+				_p[1 + 5 * _n] = p.getMomentum()[1]; // py
+				_p[2 + 5 * _n] = p.getMomentum()[2]; // pz
+				_p[3 + 5 * _n] = p.getEnergy(); // E
+				_p[4 + 5 * _n] = p.getMass(); // mass
 				_v[0 + 4 * _n] = pos[0]; // x
 				_v[1 + 4 * _n] = pos[1]; // y
 				_v[2 + 4 * _n] = pos[2]; // z
@@ -305,13 +283,6 @@ public class PairsToStdhepLCIO {
 		double[] values = new double[7];
 
 		// Constants and variables
-		double mass = 0.000510998928;
-		int pdg = 11;
-		float charge = -999.0F;
-		double energy = -999.0D;
-		double[] mom = new double[3];
-		double[] beta = new double[3];
-
 		int _n = 0;
 		int _pairsnum = 0;
 		int _i = 1;
@@ -336,38 +307,19 @@ public class PairsToStdhepLCIO {
 					values[j++] = Double.valueOf(st.nextToken()).doubleValue(); 
 				}
 				
-				energy = values[0];
-				beta[0] = values[1];
-				beta[1] = values[2];
-				beta[2] = values[3];
-
-				charge = -1.0F;
-				if (energy < 0) {
-					pdg *= -1;
-					energy *= -1.0D;
-					charge *= -1.0F;
-				}
-				mom[0] = beta[0] * energy;
-				mom[1] = beta[1] * energy;
-				mom[2] = beta[2] * energy;
-
-				double pT = 0;
-				double theta = 0;
-				pT = Math.sqrt(mom[0] * mom[0] + mom[1] * mom[1]);
-				theta = Math.atan(pT / Math.abs(mom[2]));
-				if (theta < 0) 	theta += Math.PI;
-
-				if ((theta < Theta_cut_low || theta > Theta_cut_high) 
-				       || (pT < pT_cut_low || pT > pT_cut_high)){
+				Particle p = new Particle(values);
+				
+				if ((p.getTheta() < Theta_cut_low || p.getTheta() > Theta_cut_high) 
+				       || (p.getPT() < pT_cut_low || p.getPT() > pT_cut_high)){
 					continue;
 				}
 				
 				pair = new IMCParticle();
 				
-				pair.setPDG(pdg);
-				pair.setMass((float) mass);
-				pair.setCharge(charge);
-				pair.setMomentum(mom[0],mom[1],mom[2]);
+				pair.setPDG(p.getPDG());
+				pair.setMass((float) p.getMass());
+				pair.setCharge(p.getCharge());
+				pair.setMomentum(p.getMomentum()[0],p.getMomentum()[1],p.getMomentum()[2]);
 				
 				GP_pairs.add(pair);
 				
@@ -536,7 +488,37 @@ public class PairsToStdhepLCIO {
 
 class Particle{
 	public Particle(double[] qualities){
+		qualities = new double[7];
 		
+		energy = qualities[0];
+		beta = new double[3];
+		beta[0] = qualities[1];
+		beta[1] = qualities[2];
+		beta[2] = qualities[3];
+
+		mass = 0.000510998928;
+		charge = -1;
+		if (energy < 0) {
+			pdg *= -1;
+			energy *= -1.0D;
+			charge *= -1;
+		}
+		mom = new double[3];
+		mom[0] = beta[0] * energy;
+		mom[1] = beta[1] * energy;
+		mom[2] = beta[2] * energy;
+
+		pT = calculatePT(mom);
+		theta = calculateTheta(pT, mom);
+	}
+	private double calculatePT(double[] momentum){
+		double p_T = Math.sqrt(momentum[0] * momentum[0] + momentum[1] * momentum[1]);
+		return p_T;
+	}
+	private double calculateTheta(double pT, double[] momentum){
+		double Theta = Math.atan(pT / Math.abs(momentum[2]));
+		if (Theta < 0) 	Theta += Math.PI;
+		return Theta;
 	}
 	public double[] getMomentum(){
 		return mom;
@@ -547,9 +529,25 @@ class Particle{
 	public int getPDG(){
 		return pdg;
 	}
+	public int getCharge(){
+		return charge;
+	}
+	public double getMass(){
+		return mass;
+	}
+	public double getPT(){
+		return pT;
+	}
+	public double getTheta(){
+		return theta;
+	}
 	
-	private double[] mom = {0.D};
-	private double[] beta = {0.D};
-	private double energy = -999.0D;
-	private int pdg = 0;
+	private double[] mom;
+	private double[] beta;
+	private double energy;
+	private int pdg;
+	private int charge;
+	private double mass;
+	private double pT;
+	private double theta;
 }
