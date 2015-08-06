@@ -1,0 +1,12 @@
+PairsToStdhepLCIO
+Converting GuineaPig pairs.dat files to Stdhep or LCIO
+
+For compiling type:
+javac -cp bin:lib/* src/PairsToStdhepLCIO.java 
+For running type:
+java -cp bin:lib/* PairsToStdhepLCIO -i pairs.dat -o output<.lcio / .stdhep>
+
+There are also more options available e.g. for applying cuts on p_T and theta.
+
+See usage by typing:
+java -cp bin:lib/* PairsToStdhepLCIO -h
