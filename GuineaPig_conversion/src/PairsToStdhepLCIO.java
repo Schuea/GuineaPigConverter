@@ -1,17 +1,23 @@
-import java.io.*;
-import java.util.*;
-
-import static java.lang.Math.sqrt;
-import static java.lang.Math.toRadians;
-import hep.io.stdhep.StdhepWriter;
-import hep.io.stdhep.StdhepEvent;
 import hep.io.stdhep.StdhepBeginRun;
 import hep.io.stdhep.StdhepEndRun;
+import hep.io.stdhep.StdhepEvent;
+import hep.io.stdhep.StdhepWriter;
 
-import hep.lcio.event.*;
-import hep.lcio.io.*;
-import hep.lcio.implementation.event.*;
-import hep.lcio.implementation.io.*;
+import hep.lcio.event.LCIO;
+import hep.lcio.implementation.event.ILCCollection;
+import hep.lcio.implementation.event.ILCEvent;
+import hep.lcio.implementation.event.IMCParticle;
+import hep.lcio.implementation.io.LCFactory;
+import hep.lcio.io.LCWriter;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Scanner;
+import java.util.StringTokenizer;
 
 
 /**
@@ -488,8 +494,7 @@ public class PairsToStdhepLCIO {
 
 class Particle{
 	public Particle(double[] qualities){
-		qualities = new double[7];
-		
+			
 		energy = qualities[0];
 		beta = new double[3];
 		beta[0] = qualities[1];
@@ -499,10 +504,9 @@ class Particle{
 		mass = 0.000510998928;
 		charge = -1;
 		if (energy < 0) {
-			pdg *= -1;
-			energy *= -1.0D;
-			charge *= -1;
+			ChangeToPositron();
 		}
+
 		mom = new double[3];
 		mom[0] = beta[0] * energy;
 		mom[1] = beta[1] * energy;
@@ -510,6 +514,7 @@ class Particle{
 
 		pT = calculatePT(mom);
 		theta = calculateTheta(pT, mom);
+
 	}
 	private double calculatePT(double[] momentum){
 		double p_T = Math.sqrt(momentum[0] * momentum[0] + momentum[1] * momentum[1]);
@@ -519,6 +524,11 @@ class Particle{
 		double Theta = Math.atan(pT / Math.abs(momentum[2]));
 		if (Theta < 0) 	Theta += Math.PI;
 		return Theta;
+	}
+	public void ChangeToPositron(){
+		pdg *= -1;
+		energy *= -1.0D;
+		charge *= -1;
 	}
 	public double[] getMomentum(){
 		return mom;
@@ -545,9 +555,9 @@ class Particle{
 	private double[] mom;
 	private double[] beta;
 	private double energy;
-	private int pdg;
-	private int charge;
-	private double mass;
+	private int pdg = 11;
+	private int charge = -1;
+	private double mass = 0.000510998928;
 	private double pT;
 	private double theta;
 }
