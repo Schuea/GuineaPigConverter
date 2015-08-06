@@ -8,7 +8,6 @@ import hep.io.stdhep.StdhepEvent;
 import hep.io.stdhep.StdhepBeginRun;
 import hep.io.stdhep.StdhepEndRun;
 
-//import org.lcsim.lcio.*;
 import hep.lcio.event.*;
 import hep.lcio.io.*;
 import hep.lcio.implementation.event.*;
@@ -534,3 +533,23 @@ public class PairsToStdhepLCIO {
 		System.exit(0);
 	}//end usage()
 }//end PairsToSthepLCIO class
+
+class Particle{
+	public Particle(double[] qualities){
+		
+	}
+	public double[] getMomentum(){
+		return mom;
+	}
+	public double getEnergy(){
+		return energy;
+	}
+	public int getPDG(){
+		return pdg;
+	}
+	
+	private double[] mom = {0.D};
+	private double[] beta = {0.D};
+	private double energy = -999.0D;
+	private int pdg = 0;
+}
