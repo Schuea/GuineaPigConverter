@@ -30,9 +30,10 @@ public class PairsToStdhepLCIO {
 	public static void main(String[] args) throws IOException {
 		Start();
 		if (args.length < 1) Usage();
-		if (args.length %2 != 0){
+		if (args.length %2 != 0 && !(args[0].equals("-h") || args[0].equals("--help"))){
 			System.out.println("Please check your arguments!\n"
-					+ "I guess you forgot to set a flag... Type -h / --help for the USAGE.");
+					+ "I guess you forgot to set a flag... Type for the USAGE:\n"
+					+ ">> java -cp bin:lib/* PairsToStdhepLCIO -h / --help");
 			System.exit(1);
 		}
 
@@ -175,7 +176,7 @@ public class PairsToStdhepLCIO {
 					stdecom, stdxsec, stdseed1, stdseed2));
 
 		} catch (java.io.IOException e) {
-			System.err.println("Error opening file: " + outputFilename);
+			System.err.println("Error opening file: " + outputFilename+".stdhep");
 			e.printStackTrace();
 			System.exit(1);
 		}
@@ -205,7 +206,7 @@ public class PairsToStdhepLCIO {
 						w.writeRecord(new StdhepBeginRun(nevtreq, nevtgen, nevtwrt,
 								stdecom, stdxsec, stdseed1, stdseed2));
 					} catch (java.io.IOException e) {
-						System.err.println("Error opening file: " + outputFilename);
+						System.err.println("Error opening file: " + New_outputFilename+".stdhep");
 						e.printStackTrace();
 						System.exit(1);
 					}
@@ -350,24 +351,34 @@ public class PairsToStdhepLCIO {
 						System.exit(1);
 					}
 					try{
+						++_i;
 						lcWriter = LCFactory.getInstance().createLCWriter() ;
 						lcWriter.open(New_outputFilename);
+						event.addCollection(GP_pairs, "MCParticle");
+						lcWriter.writeEvent(event);
+						System.out.println("\n DONE! Closing file "+ New_outputFilename +".slcio with "+_n+" MCParticles.");
+						lcWriter.close();
+						/*
+						lcWriter = LCFactory.getInstance().createLCWriter() ;
+						lcWriter.open(New_outputFilename);
+						*/
 						event = new ILCEvent();	
 						event.setDetectorName("UNKNOWN");
 						event.setRunNumber(1);
 						event.setEventNumber(_i);
+						GP_pairs = new ILCCollection(LCIO.MCPARTICLE);
+						/*
 						event.addCollection(GP_pairs, "MCParticle");
 						lcWriter.writeEvent(event);
-						System.out.println("\n DONE! Closing file "+ New_outputFilename +" with "+_n+" MCParticles.");
+						System.out.println("\n DONE! Closing file "+ New_outputFilename +".slcio with "+_n+" MCParticles.");
 						lcWriter.close();
+						*/
 					}
 					catch (java.io.IOException e) {
-						System.err.println("Error opening file: " + New_outputFilename);
+						System.err.println("Error opening file: " + New_outputFilename + ".slcio");
 						e.printStackTrace();
 						System.exit(1);
 					}
-					
-					++_i;
 					_n = 0;
 				}
 												
@@ -400,7 +411,7 @@ public class PairsToStdhepLCIO {
 					+"In total, "+ _pairsnum +" MCParticles have been processed.");
 			}
 			catch(java.io.IOException ex){
-				System.err.println("Error with opening/closing file: " + New_outputFilename);
+				System.err.println("Error with opening/closing file: " + New_outputFilename + ".slcio");
 				ex.printStackTrace();
                 		System.exit(1);
 			}
