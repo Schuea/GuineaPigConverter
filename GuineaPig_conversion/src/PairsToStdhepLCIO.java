@@ -29,7 +29,7 @@ public class PairsToStdhepLCIO {
 
 	public static void main(String[] args) throws IOException {
 		Start();
-		if (args.length < 1) usage();
+		if (args.length < 1) Usage();
 		if (args.length %2 != 0){
 			System.out.println("Please check your arguments!\n"
 					+ "I guess you forgot to set a flag... Type -h / --help for the USAGE.");
@@ -44,7 +44,7 @@ public class PairsToStdhepLCIO {
 		int total_number_of_particles = 0;
 
 		for (int i = 0; i < args.length; i++){
-			if ( args[i].equals("-h") || args[i].equals("--help")) usage();
+			if ( args[i].equals("-h") || args[i].equals("--help")) Usage();
 			if ( args[i].equals("-i")){
 				input_filename = args[i+1];
 				inputfile_set = true;
@@ -57,7 +57,7 @@ public class PairsToStdhepLCIO {
 		
 		if (!inputfile_set || !outputfile_set){
 			System.out.println("You didn't give an inputfile/outputfile. Please try again!\n");
-			usage();
+			Usage();
 		}
 		
 		File inputfile = new File(input_filename);
@@ -65,7 +65,7 @@ public class PairsToStdhepLCIO {
 			System.out.println("Input file " + input_filename + " does not exist!");
 			System.exit(1);
 		}
-		total_number_of_particles = countLines(input_filename);
+		total_number_of_particles = CountLines(input_filename);
 		
 		FileInputStream pairs_file = new FileInputStream(inputfile);
 		BufferedReader pairs = new BufferedReader(new InputStreamReader(
@@ -118,14 +118,14 @@ public class PairsToStdhepLCIO {
 		
 		if (file_format.equals("stdhep")) {
 			if (nmax < total_number_of_particles) {
-				MoreOutputfiles = YesNo_more_outputfiles();
+				MoreOutputfiles = YesNo_MoreOutputfiles();
 			}
 			ToStdhep(output_name, pairs, pT_cut_low, pT_cut_high, Theta_cut_low, Theta_cut_high, nmax, MoreOutputfiles);
 			pairs_file.close();
 		}
 		else if (file_format.equals("slcio")){
 			if (nmax < total_number_of_particles) {
-				MoreOutputfiles = YesNo_more_outputfiles();
+				MoreOutputfiles = YesNo_MoreOutputfiles();
 			}
 		 	ToLCIO(output_name, pairs, pT_cut_low, pT_cut_high, Theta_cut_low, Theta_cut_high, nmax, MoreOutputfiles);
 		 	pairs_file.close(); 
@@ -219,6 +219,7 @@ public class PairsToStdhepLCIO {
 				}
 
 				Particle p = new Particle(values);
+				p.initialise();
 				
 				if ((p.getTheta() < Theta_cut_low || p.getTheta() > Theta_cut_high) 
 				       || (p.getPT() < pT_cut_low || p.getPT() > pT_cut_high)){
@@ -314,6 +315,7 @@ public class PairsToStdhepLCIO {
 				}
 				
 				Particle p = new Particle(values);
+				p.initialise();
 				
 				if ((p.getTheta() < Theta_cut_low || p.getTheta() > Theta_cut_high) 
 				       || (p.getPT() < pT_cut_low || p.getPT() > pT_cut_high)){
@@ -407,7 +409,7 @@ public class PairsToStdhepLCIO {
 		} 
 	}//end of ToLCIO()
 	
-	private static boolean YesNo_more_outputfiles() {
+	private static boolean YesNo_MoreOutputfiles() {
 		boolean more_outputfiles = false;
 		Scanner keyboard = null;
 
@@ -430,7 +432,7 @@ public class PairsToStdhepLCIO {
 			}
 			else {
 				System.out.println("\n Please, try again.\n");
-				YesNo_more_outputfiles();
+				YesNo_MoreOutputfiles();
 			}
 			return more_outputfiles;
 		} finally {
@@ -440,7 +442,7 @@ public class PairsToStdhepLCIO {
 
 	}
 
-	private static int countLines(String filename) throws IOException {
+	private static int CountLines(String filename) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(filename));
 		boolean empty = true;
 		try {
@@ -469,7 +471,7 @@ public class PairsToStdhepLCIO {
 		System.out.println("\n");
 	}
 	
-	private static void usage() {
+	private static void Usage() {
 		System.out.println("\nPairsToStdhepLCIO: \n"
 			+ "Application to convert pairs.dat output files from GuineaPig to stdhep format or slcio format.\n"
 			+ "Cuts on pT and Theta can be applied in the following way: pTcut_low < pT [GeV] < pTcut_high, and thetacut_low < theta [degrees] < thetacut_high. \n"
@@ -489,7 +491,7 @@ public class PairsToStdhepLCIO {
 		System.out.println("\n For example: \n"
 			+ ">> java -cp bin:lib/* PairsToStdhepLCIO -i pairs.dat -o pairs.slcio -n 3000 -pl 0.01 -ph 1 -tl 0.2 -th 30");
 		System.exit(0);
-	}//end usage()
+	}//end Usage()
 }//end PairsToSthepLCIO class
 
 class Particle{
@@ -503,6 +505,9 @@ class Particle{
 
 		mass = 0.000510998928;
 		charge = -1;
+		
+	}
+	public void initialise(){
 		if (energy < 0) {
 			ChangeToPositron();
 		}
@@ -514,7 +519,6 @@ class Particle{
 
 		pT = calculatePT(mom);
 		theta = calculateTheta(pT, mom);
-
 	}
 	private double calculatePT(double[] momentum){
 		double p_T = Math.sqrt(momentum[0] * momentum[0] + momentum[1] * momentum[1]);
@@ -530,25 +534,25 @@ class Particle{
 		energy *= -1.0D;
 		charge *= -1;
 	}
-	public double[] getMomentum(){
+	public final double[] getMomentum(){
 		return mom;
 	}
-	public double getEnergy(){
+	public final double getEnergy(){
 		return energy;
 	}
-	public int getPDG(){
+	public final int getPDG(){
 		return pdg;
 	}
-	public int getCharge(){
+	public final int getCharge(){
 		return charge;
 	}
-	public double getMass(){
+	public final double getMass(){
 		return mass;
 	}
-	public double getPT(){
+	public final double getPT(){
 		return pT;
 	}
-	public double getTheta(){
+	public final double getTheta(){
 		return theta;
 	}
 	
