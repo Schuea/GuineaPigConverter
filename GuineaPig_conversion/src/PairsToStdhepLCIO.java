@@ -22,7 +22,7 @@ import java.util.StringTokenizer;
 
 /**
  * Converter for a GuineaPig pairs.dat file to stdhep or LCIO
- *
+ * Author: Anne Schuetz
  */
 
 public class PairsToStdhepLCIO {
@@ -44,6 +44,7 @@ public class PairsToStdhepLCIO {
 		String output_filename = null;
 		int total_number_of_particles = 0;
 
+		//Find the input and output file:
 		for (int i = 0; i < args.length; i++){
 			if ( args[i].equals("-h") || args[i].equals("--help")) Usage();
 			if ( args[i].equals("-i")){
@@ -82,13 +83,15 @@ public class PairsToStdhepLCIO {
 		String file_format = output_filename.substring(dot+1);
 		String output_name = output_filename.substring(0,dot);
 
-		//Cuts:	
+		//Default values for cuts:	
 		double pT_cut_low = 0.0D;
 		double pT_cut_high = 999.9D;
 		double Theta_cut_low = 0.0D;
 		double Theta_cut_high = 2.0D*Math.PI;
 		int nmax = total_number_of_particles;
 
+		//Save values for cuts:
+		//These are optional input values
 		for (int i = 0; i < args.length; i++){
 			if ( args[i].equals("-n")){
 				nmax = Integer.parseInt(args[i+1]);
@@ -358,21 +361,13 @@ public class PairsToStdhepLCIO {
 						lcWriter.writeEvent(event);
 						System.out.println("\n DONE! Closing file "+ New_outputFilename +".slcio with "+_n+" MCParticles.");
 						lcWriter.close();
-						/*
-						lcWriter = LCFactory.getInstance().createLCWriter() ;
-						lcWriter.open(New_outputFilename);
-						*/
+						
 						event = new ILCEvent();	
 						event.setDetectorName("UNKNOWN");
 						event.setRunNumber(1);
 						event.setEventNumber(_i);
 						GP_pairs = new ILCCollection(LCIO.MCPARTICLE);
-						/*
-						event.addCollection(GP_pairs, "MCParticle");
-						lcWriter.writeEvent(event);
-						System.out.println("\n DONE! Closing file "+ New_outputFilename +".slcio with "+_n+" MCParticles.");
-						lcWriter.close();
-						*/
+						
 					}
 					catch (java.io.IOException e) {
 						System.err.println("Error opening file: " + New_outputFilename + ".slcio");
