@@ -40,7 +40,7 @@ The classpath needs to be adjusted appropriately to your paths.
 
 
 For running:
-java -cp bin:lib/* PairsToStdhepLCIO -i pairs.dat -o output<.lcio / .stdhep>
+java -cp bin:lib/* PairsToStdhepLCIO -i pairs.dat -o output<.slcio / .stdhep>
 
 
 There are also more options available e.g. for applying cuts on p_T and theta.

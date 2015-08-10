@@ -489,11 +489,11 @@ public class PairsToStdhepLCIO {
 		System.out.printf("%-25s%s%n","-o:","<output filename.stdhep / .slcio>");
 		System.out.println("\nOPTIONS:\n");
 		System.out.printf("%-25s%s%n","-h / --help:","Usage");
-		System.out.printf("%-25s%s%n","-n:","<number of particles>");
+		System.out.printf("%-25s%s%n","-n:","<maximum number of particles that are to be converted>");
 		System.out.printf("%-25s%s%n","-pl / --ptcut_low:","<lower limit for pT in GeV>");
 		System.out.printf("%-25s%s%n","-ph / --ptcut_high:","<higher limit for pT in GeV>");
-		System.out.printf("%-25s%s%n","-tl / --thetacut_low:","<lower limit for theta in GeV>");
-		System.out.printf("%-25s%s%n","-th / --thetacut_high:","<higher limit for theta in GeV>");
+		System.out.printf("%-25s%s%n","-tl / --thetacut_low:","<lower limit for theta in degree>");
+		System.out.printf("%-25s%s%n","-th / --thetacut_high:","<higher limit for theta in degree>");
 		System.out.println("\n For example: \n"
 			+ ">> java -cp bin:lib/* PairsToStdhepLCIO -i pairs.dat -o pairs.slcio -n 3000 -pl 0.01 -ph 1 -tl 0.2 -th 30");
 		System.exit(0);
