@@ -332,6 +332,7 @@ public class PairsToStdhepLCIO {
 				pair.setMass((float) p.getMass());
 				pair.setCharge(p.getCharge());
 				pair.setMomentum(p.getMomentum()[0],p.getMomentum()[1],p.getMomentum()[2]);
+				pair.setGeneratorStatus(p.getGeneratorStatus());
 				
 				GP_pairs.add(pair);
 				
@@ -502,7 +503,8 @@ public class PairsToStdhepLCIO {
 
 class Particle{
 	public Particle(double[] qualities){
-			
+		
+		GeneratorStatus = 1;
 		energy = qualities[0];
 		beta = new double[3];
 		beta[0] = qualities[1];
@@ -561,6 +563,9 @@ class Particle{
 	public final double getTheta(){
 		return theta;
 	}
+	public final int getGeneratorStatus(){
+		return GeneratorStatus;
+	}
 	
 	private double[] mom;
 	private double[] beta;
@@ -570,4 +575,5 @@ class Particle{
 	private double mass = 0.000510998928;
 	private double pT;
 	private double theta;
+	private int GeneratorStatus;
 }
