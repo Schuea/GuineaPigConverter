@@ -83,16 +83,19 @@ public class PairsToStdhepLCIO {
 		String file_format = output_filename.substring(dot+1);
 		String output_name = output_filename.substring(0,dot);
 
-		//Default values for cuts:	
+		//Default values for the optional arguments:	
+		int runnum = 1;
+		int nmax = total_number_of_particles;
 		double pT_cut_low = 0.0D;
 		double pT_cut_high = 999.9D;
 		double Theta_cut_low = 0.0D;
 		double Theta_cut_high = 2.0D*Math.PI;
-		int nmax = total_number_of_particles;
 
-		//Save values for cuts:
-		//These are optional input values
+		//Save values for the optional input values:
 		for (int i = 0; i < args.length; i++){
+			if ( args[i].equals("-r")){
+				runnum = Integer.parseInt(args[i+1]);
+			}
 			if ( args[i].equals("-n")){
 				nmax = Integer.parseInt(args[i+1]);
 			}
@@ -124,14 +127,14 @@ public class PairsToStdhepLCIO {
 			if (nmax < total_number_of_particles) {
 				MoreOutputfiles = YesNo_MoreOutputfiles();
 			}
-			ToStdhep(output_name, pairs, pT_cut_low, pT_cut_high, Theta_cut_low, Theta_cut_high, nmax, MoreOutputfiles);
+			ToStdhep(output_name, pairs, nmax, MoreOutputfiles, pT_cut_low, pT_cut_high, Theta_cut_low, Theta_cut_high);
 			pairs_file.close();
 		}
 		else if (file_format.equals("slcio")){
 			if (nmax < total_number_of_particles) {
 				MoreOutputfiles = YesNo_MoreOutputfiles();
 			}
-		 	ToLCIO(output_name, pairs, pT_cut_low, pT_cut_high, Theta_cut_low, Theta_cut_high, nmax, MoreOutputfiles);
+		 	ToLCIO(output_name, pairs, runnum, nmax, MoreOutputfiles, pT_cut_low, pT_cut_high, Theta_cut_low, Theta_cut_high);
 		 	pairs_file.close(); 
 		}
 		else {
@@ -141,8 +144,8 @@ public class PairsToStdhepLCIO {
 
 	}//end main
 
-	private static void ToStdhep(String outputFilename, BufferedReader pairs,
-			double pT_cut_low, double pT_cut_high, double Theta_cut_low, double Theta_cut_high, int _nmax, boolean More_outputfiles) {
+	private static void ToStdhep(String outputFilename, BufferedReader pairs, int _nmax, boolean More_outputfiles,
+			double pT_cut_low, double pT_cut_high, double Theta_cut_low, double Theta_cut_high) {
 		
 		double[] values = new double[7];
 
@@ -287,7 +290,7 @@ public class PairsToStdhepLCIO {
 
 	}//end ToStdhep()
 
-	private static void ToLCIO(String outputFilename, BufferedReader pairs, double pT_cut_low, double pT_cut_high, double Theta_cut_low, double Theta_cut_high, int _nmax, boolean More_outputfiles) { 
+	private static void ToLCIO(String outputFilename, BufferedReader pairs, int run_num, int _nmax, boolean More_outputfiles, double pT_cut_low, double pT_cut_high, double Theta_cut_low, double Theta_cut_high) { 
 		
 		String New_outputFilename=outputFilename;
 		
@@ -306,7 +309,7 @@ public class PairsToStdhepLCIO {
 		try{
 			event = new ILCEvent();	
 			event.setEventNumber(_i);
-			event.setRunNumber(1);
+			event.setRunNumber(run_num);
 			event.setDetectorName("UNKNOWN");
 			GP_pairs = new ILCCollection(LCIO.MCPARTICLE);
 						
@@ -365,7 +368,7 @@ public class PairsToStdhepLCIO {
 						
 						event = new ILCEvent();	
 						event.setDetectorName("UNKNOWN");
-						event.setRunNumber(1);
+						event.setRunNumber(run_num);
 						event.setEventNumber(_i);
 						GP_pairs = new ILCCollection(LCIO.MCPARTICLE);
 						
@@ -481,8 +484,10 @@ public class PairsToStdhepLCIO {
 	private static void Usage() {
 		System.out.println("\nPairsToStdhepLCIO: \n"
 			+ "Application to convert pairs.dat output files from GuineaPig to stdhep format or slcio format.\n"
-			+ "Cuts on pT and Theta can be applied in the following way: pTcut_low < pT [GeV] < pTcut_high, and thetacut_low < theta [degrees] < thetacut_high. \n"
-			+ "With giving an integer number, the number of particles that are to be converted can be defined.");
+			+ "\nCuts on pT and Theta can be applied in the following way: pTcut_low < pT [GeV] < pTcut_high, and thetacut_low < theta [degrees] < thetacut_high. \n"
+			+ "With giving an integer number, the number of particles that are to be converted can be defined.\n"
+			+ "Passing a run number as an argument will allow to distinguish single simulation files after merging.\n"
+			+ "If no run number will be passed the default value 1 will be set as the run number for this file.");
 		System.out.println("\nUSAGE: \n"
 			+ ">> java -cp bin:lib/*  PairsToStdhepLCIO -i PATH/TO/input.dat -o output<.stdhep / .slcio> <more options> \n");
 		System.out.println("\nRequired Arguments:\n");
@@ -490,13 +495,14 @@ public class PairsToStdhepLCIO {
 		System.out.printf("%-25s%s%n","-o:","<output filename.stdhep / .slcio>");
 		System.out.println("\nOPTIONS:\n");
 		System.out.printf("%-25s%s%n","-h / --help:","Usage");
+		System.out.printf("%-25s%s%n","-r:","<run number>");
 		System.out.printf("%-25s%s%n","-n:","<maximum number of particles that are to be converted>");
 		System.out.printf("%-25s%s%n","-pl / --ptcut_low:","<lower limit for pT in GeV>");
 		System.out.printf("%-25s%s%n","-ph / --ptcut_high:","<higher limit for pT in GeV>");
 		System.out.printf("%-25s%s%n","-tl / --thetacut_low:","<lower limit for theta in degree>");
 		System.out.printf("%-25s%s%n","-th / --thetacut_high:","<higher limit for theta in degree>");
 		System.out.println("\n For example: \n"
-			+ ">> java -cp bin:lib/* PairsToStdhepLCIO -i pairs.dat -o pairs.slcio -n 3000 -pl 0.01 -ph 1 -tl 0.2 -th 30");
+			+ ">> java -cp bin:lib/* PairsToStdhepLCIO -i pairs.dat -o pairs.slcio -r 2 -n 3000 -pl 0.01 -ph 1 -tl 0.2 -th 30");
 		System.exit(0);
 	}//end Usage()
 }//end PairsToSthepLCIO class
