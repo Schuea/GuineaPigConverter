@@ -150,8 +150,6 @@ public class PairsToStdhepLCIO {
 		double[] values = new double[7];
 
 		// Constants and variables
-		double[] pos = new double[3];
-
 		int _n = 0;
 		int _eventnum = 0;
 		int _i = 1;
@@ -240,9 +238,9 @@ public class PairsToStdhepLCIO {
 				_p[2 + 5 * _n] = p.getMomentum()[2]; // pz
 				_p[3 + 5 * _n] = p.getEnergy(); // E
 				_p[4 + 5 * _n] = p.getMass(); // mass
-				_v[0 + 4 * _n] = pos[0]; // x
-				_v[1 + 4 * _n] = pos[1]; // y
-				_v[2 + 4 * _n] = pos[2]; // z
+				_v[0 + 4 * _n] = p.getPosition()[0]; // x
+				_v[1 + 4 * _n] = p.getPosition()[1]; // y
+				_v[2 + 4 * _n] = p.getPosition()[2]; // z
 				// increment the number of particles in this event
 				_n++;
 
@@ -334,7 +332,8 @@ public class PairsToStdhepLCIO {
 				pair.setPDG(p.getPDG());
 				pair.setMass((float) p.getMass());
 				pair.setCharge(p.getCharge());
-				pair.setMomentum(p.getMomentum()[0],p.getMomentum()[1],p.getMomentum()[2]);
+				pair.setMomentum(p.getMomentum());
+				pair.setVertex(p.getPosition());
 				pair.setGeneratorStatus(p.getGeneratorStatus());
 				
 				GP_pairs.add(pair);
@@ -516,6 +515,10 @@ class Particle{
 		beta[0] = qualities[1];
 		beta[1] = qualities[2];
 		beta[2] = qualities[3];
+		pos = new double[3];
+		pos[0] = qualities[4];
+		pos[1] = qualities[5];
+		pos[2] = qualities[6];
 
 		mass = 0.000510998928;
 		charge = -1;
@@ -551,6 +554,9 @@ class Particle{
 	public final double[] getMomentum(){
 		return mom;
 	}
+	public final double[] getPosition(){
+		return pos;
+	}
 	public final double getEnergy(){
 		return energy;
 	}
@@ -575,6 +581,7 @@ class Particle{
 	
 	private double[] mom;
 	private double[] beta;
+	private double[] pos;
 	private double energy;
 	private int pdg = 11;
 	private int charge = -1;
