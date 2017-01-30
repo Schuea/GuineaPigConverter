@@ -450,7 +450,7 @@ public class PairsToStdhepLCIO {
 						++_i;
 						lcWriter = LCFactory.getInstance().createLCWriter() ;
 						lcWriter.open(New_outputFilename);
-						event.addCollection(GP_pairs, "MCParticle");
+						event.addCollection(GP_pairs, "MCParticleInput");
 						lcWriter.writeEvent(event);
 						System.out.println("\n DONE! Closing file "+ New_outputFilename +".slcio with "+_n+" MCParticles.");
 						lcWriter.close();
@@ -628,9 +628,9 @@ class Particle{
 		beta[1] = qualities[2];
 		beta[2] = qualities[3];
 		pos = new double[3];
-		pos[0] = qualities[4];
-		pos[1] = qualities[5];
-		pos[2] = qualities[6];
+		pos[0] = qualities[4]*Math.pow(10,-6);//GP returns the vertex in [nm] in the pairs.dat file -> convert from nm to mm
+		pos[1] = qualities[5]*Math.pow(10,-6);
+		pos[2] = qualities[6]*Math.pow(10,-6);
 
 		//Default values for particle mass, charge and state of simulation:
 		GeneratorStatus = 1; //These particles are all generated.
